@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Zap, Eye, EyeOff, UserPlus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,19 @@ export default function AuthPage() {
   const [referrerCode, setReferrerCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { signIn, signInWithGoogle, signUp } = useAuth();
+
+  useEffect(() => {
+    const urlRef = searchParams.get("ref");
+    const storedRef = localStorage.getItem("referrerCode");
+    const initialRef = urlRef || storedRef || "";
+    if (initialRef) {
+      setReferrerCode(initialRef);
+      if (!isLogin) return;
+      setIsLogin(false);
+    }
+  }, [searchParams, isLogin]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +44,7 @@ export default function AuthPage() {
         const loggedUser = await signUp(email, password, fullName, referrerCode);
         const target = isAdminEmail(loggedUser.email) ? "/admin" : "/dashboard";
         navigate(target);
+        localStorage.removeItem("referrerCode");
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Ocurrio un error";

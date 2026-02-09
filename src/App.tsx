@@ -11,6 +11,7 @@ import ToolsPage from "./pages/ToolsPage";
 import NetworkPage from "./pages/NetworkPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import AdminPage from "./pages/AdminPage";
+import ReferralPage from "./pages/ReferralPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,8 +24,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/auth" element={<AuthPage />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/ref/:code" element={<ReferralPage />} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/tools" element={<ToolsPage />} />
           <Route path="/network" element={<NetworkPage />} />

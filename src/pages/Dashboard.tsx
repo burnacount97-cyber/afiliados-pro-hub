@@ -70,10 +70,11 @@ export default function Dashboard() {
   const stats = dashboardQuery.data?.stats ?? [];
   const recentActivity = dashboardQuery.data?.recentActivity ?? [];
   const referralCode = meQuery.data?.user?.referralCode || "";
-  const referralLink = referralCode ? `afiliadospro.com/ref/${referralCode}` : "afiliadospro.com/ref/";
+  const baseUrl = (import.meta.env.VITE_PUBLIC_URL || window.location.origin).replace(/\\/$/, "");
+  const referralLink = referralCode ? `${baseUrl}/ref/${referralCode}` : `${baseUrl}/ref/`;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(`https://${referralLink}`);
+    navigator.clipboard.writeText(referralLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

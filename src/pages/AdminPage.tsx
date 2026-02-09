@@ -134,15 +134,15 @@ export default function AdminPage() {
             const isDisabled = !!u.disabled;
             return (
               <div key={u.uid} className="glass-card p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="space-y-1">
                     <p className="text-sm font-semibold text-foreground">{u.fullName || "Sin nombre"}</p>
                     <p className="text-xs text-muted-foreground">{u.email}</p>
-                    <p className="text-xs text-muted-foreground">Codigo: {u.referralCode || "-"}</p>
-                    <p className="text-xs text-muted-foreground">Estado: {isDisabled ? "Suspendido" : "Activo"}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Afiliado por: {u.referredByName || u.referredBy || "-"}
-                    </p>
+                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                      <span>Codigo: {u.referralCode || "-"}</span>
+                      <span>Estado: {isDisabled ? "Suspendido" : "Activo"}</span>
+                      <span>Afiliado por: {u.referredByName || u.referredBy || "-"}</span>
+                    </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
