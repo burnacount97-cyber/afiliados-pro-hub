@@ -16,11 +16,15 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { isAdminEmail } from "@/lib/admin";
 
-const navItems = [
+const userNavItems = [
   { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { title: "Mis Herramientas", path: "/tools", icon: Wrench },
   { title: "Mi Red", path: "/network", icon: Users },
   { title: "Suscripción", path: "/subscription", icon: CreditCard },
+];
+
+const adminNavItems = [
+  { title: "Superadmin", path: "/admin", icon: ShieldCheck },
 ];
 
 interface AppLayoutProps {
@@ -33,6 +37,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
   const { user } = useAuth();
   const isAdmin = isAdminEmail(user?.email || "");
+  const navItems = isAdmin ? adminNavItems : userNavItems;
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -86,21 +91,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
               </Link>
             );
           })}
-          {isAdmin && (
-            <Link
-              to="/admin"
-              onClick={() => setMobileOpen(false)}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                location.pathname === "/admin"
-                  ? "bg-primary/10 text-primary glow-emerald"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-              )}
-            >
-              <ShieldCheck className="h-5 w-5 shrink-0" />
-              {!collapsed && <span>Superadmin</span>}
-            </Link>
-          )}
         </nav>
 
         {/* Footer */}

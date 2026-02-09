@@ -1,0 +1,29 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B101B" />
+      <stop offset="1" stop-color="#111A2B" />
+    </linearGradient>
+    <linearGradient id="accent" x1="300" y1="130" x2="900" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22F7A0" />
+      <stop offset="1" stop-color="#00C57A" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" rx="48" fill="url(#bg)" />
+  <circle cx="940" cy="120" r="160" fill="#1D2A3F" opacity="0.7" />
+  <circle cx="220" cy="520" r="180" fill="#102032" opacity="0.8" />
+  <path
+    d="M650 120 520 340h110l-50 190 200-300H660l40-110Z"
+    fill="url(#accent)"
+  />
+  <text x="120" y="260" fill="#E8F1FF" font-family="Arial, sans-serif" font-size="72" font-weight="700">
+    AfiliadosPRO
+  </text>
+  <text x="120" y="330" fill="#9FB0C9" font-family="Arial, sans-serif" font-size="32">
+    Plataforma de afiliados con comisiones recurrentes
+  </text>
+  <rect x="120" y="380" width="280" height="56" rx="28" fill="#1B2A3E" />
+  <text x="150" y="418" fill="#22F7A0" font-family="Arial, sans-serif" font-size="24" font-weight="600">
+    Empieza a ganar
+  </text>
+</svg>

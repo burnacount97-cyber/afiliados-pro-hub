@@ -140,6 +140,9 @@ export default function AdminPage() {
                     <p className="text-xs text-muted-foreground">{u.email}</p>
                     <p className="text-xs text-muted-foreground">Codigo: {u.referralCode || "-"}</p>
                     <p className="text-xs text-muted-foreground">Estado: {isDisabled ? "Suspendido" : "Activo"}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Afiliado por: {u.referredByName || u.referredBy || "-"}
+                    </p>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
