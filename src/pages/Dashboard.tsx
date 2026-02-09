@@ -70,7 +70,7 @@ export default function Dashboard() {
   const stats = dashboardQuery.data?.stats ?? [];
   const recentActivity = dashboardQuery.data?.recentActivity ?? [];
   const referralCode = meQuery.data?.user?.referralCode || "";
-  const baseUrl = (import.meta.env.VITE_PUBLIC_URL || window.location.origin).replace(/\\/$/, "");
+  const baseUrl = (import.meta.env.VITE_PUBLIC_URL || window.location.origin).replace(/\/$/, "");
   const referralLink = referralCode ? `${baseUrl}/ref/${referralCode}` : `${baseUrl}/ref/`;
 
   const handleCopy = () => {
