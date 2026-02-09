@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Wrench,
@@ -35,9 +35,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const isAdmin = isAdminEmail(user?.email || "");
   const navItems = isAdmin ? adminNavItems : userNavItems;
+
+  const handleSignOut = async () => {
+    await signOut();
+    setMobileOpen(false);
+    navigate("/auth");
+  };
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -91,6 +98,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
               </Link>
             );
           })}
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className={cn(
+              "mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+              "text-muted-foreground hover:bg-secondary hover:text-foreground"
+            )}
+          >
+            <LogOut className="h-5 w-5 shrink-0" />
+            {!collapsed && <span>Cerrar sesion</span>}
+          </button>
         </nav>
 
         {/* Footer */}
