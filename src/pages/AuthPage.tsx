@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { isAdminEmail } from "@/lib/admin";
+import { apiFetchPublic } from "@/lib/api";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,6 +17,7 @@ export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [referrerCode, setReferrerCode] = useState("");
+  const [refLocked, setRefLocked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -24,13 +26,25 @@ export default function AuthPage() {
   useEffect(() => {
     const urlRef = searchParams.get("ref");
     const storedRef = localStorage.getItem("referrerCode");
+    const refInvalid = searchParams.get("refInvalid");
     const initialRef = urlRef || storedRef || "";
+
+    if (refInvalid) {
+      toast.error("Codigo de referido invalido");
+      localStorage.removeItem("referrerCode");
+      setRefLocked(false);
+      navigate("/auth", { replace: true });
+      return;
+    }
+
     if (initialRef) {
       setReferrerCode(initialRef);
-      if (!isLogin) return;
-      setIsLogin(false);
+      setRefLocked(true);
+      if (isLogin) {
+        setIsLogin(false);
+      }
     }
-  }, [searchParams, isLogin]);
+  }, [searchParams, isLogin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +55,24 @@ export default function AuthPage() {
         const target = isAdminEmail(loggedUser.email) ? "/admin" : "/dashboard";
         navigate(target);
       } else {
+        if (referrerCode) {
+          try {
+            const result = await apiFetchPublic(
+              `/referrals/validate?code=${encodeURIComponent(referrerCode)}`
+            );
+            if (!result.valid) {
+              toast.error("Codigo de referido invalido");
+              setRefLocked(false);
+              setReferrerCode("");
+              localStorage.removeItem("referrerCode");
+              return;
+            }
+          } catch (error) {
+            toast.error("No se pudo validar el codigo de referido");
+            setRefLocked(false);
+            return;
+          }
+        }
         const loggedUser = await signUp(email, password, fullName, referrerCode);
         const target = isAdminEmail(loggedUser.email) ? "/admin" : "/dashboard";
         navigate(target);
@@ -189,7 +221,13 @@ export default function AuthPage() {
                   className="bg-secondary/50 border-border/50 focus:border-primary"
                   value={referrerCode}
                   onChange={(event) => setReferrerCode(event.target.value)}
+                  disabled={refLocked}
                 />
+                {refLocked && (
+                  <p className="text-xs text-muted-foreground">
+                    Codigo aplicado desde tu enlace de referido.
+                  </p>
+                )}
               </div>
             )}
 
