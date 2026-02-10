@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Check, Sparkles, Crown, Zap, Smartphone } from "lucide-react";
+import { Check, Sparkles, Crown, Zap, Smartphone, Copy, CheckCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -7,9 +7,7 @@ import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const iconMap = {
   basic: Zap,
@@ -32,10 +30,8 @@ export default function SubscriptionPage() {
   const navigate = useNavigate();
   const [paypalLoading, setPaypalLoading] = useState("");
   const [walletDialogOpen, setWalletDialogOpen] = useState(false);
-  const [walletPlan, setWalletPlan] = useState("basic");
   const [walletMethod, setWalletMethod] = useState("yape");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [walletLoading, setWalletLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -58,88 +54,22 @@ export default function SubscriptionPage() {
   const plans = subscriptionQuery.data?.plans ?? [];
   const currentPlan = subscriptionQuery.data?.currentPlan ?? "basic";
 
-  const loadCulqiScript = () =>
-    new Promise((resolve, reject) => {
-      if (window.Culqi) {
-        resolve(true);
-        return;
-      }
-      const script = document.createElement("script");
-      script.src = "https://checkout.culqi.com/js/v4";
-      script.async = true;
-      script.onload = () => resolve(true);
-      script.onerror = () => reject(new Error("No se pudo cargar Culqi"));
-      document.body.appendChild(script);
-    });
-
-  const openWalletDialog = (planId, method) => {
-    setWalletPlan(planId);
+  const openWalletDialog = (method) => {
     setWalletMethod(method);
-    setPhoneNumber("");
     setWalletDialogOpen(true);
+    setCopied(false);
   };
 
-  const handleWalletPayment = async () => {
-    if (!phoneNumber || phoneNumber.length < 9) {
-      toast.error("Ingresa un numero valido");
-      return;
-    }
+  const walletNumber = "+51 924 464 410";
 
+  const handleCopyNumber = async () => {
     try {
-      setWalletLoading(true);
-      const response = await apiFetch("/culqi/orders", {
-        method: "POST",
-        body: JSON.stringify({
-          plan: walletPlan,
-          phone: phoneNumber,
-          paymentMethod: walletMethod,
-        }),
-      });
-
-      await loadCulqiScript();
-
-      const CulqiCheckout = window.CulqiCheckout;
-      if (!CulqiCheckout) {
-        toast.error("No se pudo iniciar el checkout");
-        return;
-      }
-
-      const config = {
-        settings: {
-          title: "Afiliados PRO",
-          currency: response.currencyCode || "PEN",
-          amount: response.amount,
-          order: response.orderId,
-        },
-        client: {
-          email: user?.email || "",
-        },
-        options: {
-          lang: "es",
-          modal: true,
-          paymentMethods: {
-            tarjeta: false,
-            yape: walletMethod === "yape",
-            plin: walletMethod === "plin",
-          },
-        },
-      };
-
-      const checkout = new CulqiCheckout(response.publicKey, config);
-      checkout.culqi = () => {
-        if (checkout.error) {
-          toast.error(checkout.error.user_message || "Pago cancelado");
-        } else if (checkout.order) {
-          toast.success("Pago en proceso. En minutos veras tu plan activo.");
-        }
-      };
-
-      setWalletDialogOpen(false);
-      checkout.open();
+      await navigator.clipboard.writeText(walletNumber);
+      setCopied(true);
+      toast.success("Numero copiado");
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      toast.error("No se pudo iniciar el pago con billetera");
-    } finally {
-      setWalletLoading(false);
+      toast.error("No se pudo copiar");
     }
   };
 
@@ -294,7 +224,7 @@ export default function SubscriptionPage() {
                     <button
                       type="button"
                       className="flex items-center justify-center gap-2 rounded-lg border border-border/40 bg-secondary/40 px-3 py-2 text-muted-foreground hover:bg-secondary/60"
-                      onClick={() => openWalletDialog(plan.id, "yape")}
+                      onClick={() => openWalletDialog("yape")}
                     >
                       <Smartphone className="h-4 w-4" />
                       Pagar con Yape
@@ -302,7 +232,7 @@ export default function SubscriptionPage() {
                     <button
                       type="button"
                       className="flex items-center justify-center gap-2 rounded-lg border border-border/40 bg-secondary/40 px-3 py-2 text-muted-foreground hover:bg-secondary/60"
-                      onClick={() => openWalletDialog(plan.id, "plin")}
+                      onClick={() => openWalletDialog("plin")}
                     >
                       <Smartphone className="h-4 w-4" />
                       Pagar con Plin
@@ -320,27 +250,25 @@ export default function SubscriptionPage() {
           <DialogHeader>
             <DialogTitle>Pagar con {walletMethod === "yape" ? "Yape" : "Plin"}</DialogTitle>
             <DialogDescription>
-              Ingresa tu numero para generar el QR. Tu plan se activara cuando el pago sea confirmado. Este pago es manual (no recurrente).
+              Este pago es manual (no recurrente). Envia el monto y luego confirma con soporte.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            <Label htmlFor="phone">Numero de celular</Label>
-            <Input
-              id="phone"
-              placeholder="999999999"
-              value={phoneNumber}
-              onChange={(event) => setPhoneNumber(event.target.value.replace(/\D/g, ""))}
-            />
+          <div className="rounded-xl border border-border/40 bg-secondary/40 p-4">
+            <p className="text-xs text-muted-foreground">Numero:</p>
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <span className="text-lg font-semibold text-foreground">{walletNumber}</span>
+              <button
+                className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/20"
+                onClick={handleCopyNumber}
+              >
+                {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copied ? "Copiado" : "Copiar"}
+              </button>
+            </div>
           </div>
-          <DialogFooter>
-            <button
-              className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-              onClick={handleWalletPayment}
-              disabled={walletLoading}
-            >
-              {walletLoading ? "Procesando..." : "Generar QR"}
-            </button>
-          </DialogFooter>
+          <p className="text-xs text-muted-foreground">
+            Luego de pagar, escribe al soporte para activar tu plan.
+          </p>
         </DialogContent>
       </Dialog>
     </AppLayout>
