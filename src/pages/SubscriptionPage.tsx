@@ -309,7 +309,7 @@ export default function SubscriptionPage() {
           <DialogHeader>
             <DialogTitle>Pagar con {walletMethod === "yape" ? "Yape" : "Plin"}</DialogTitle>
             <DialogDescription>
-              Ingresa tu numero para generar el QR. Tu plan se activara cuando el pago sea confirmado.
+              Ingresa tu numero para generar el QR. Tu plan se activara cuando el pago sea confirmado. Este pago es manual (no recurrente).
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
