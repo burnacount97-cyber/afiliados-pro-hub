@@ -3,4 +3,5 @@
 interface Window {
   Culqi?: any;
   culqi?: () => void;
+  CulqiCheckout?: any;
 }

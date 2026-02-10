@@ -98,33 +98,44 @@ export default function SubscriptionPage() {
 
       await loadCulqiScript();
 
-      window.Culqi.publicKey = response.publicKey;
-      window.Culqi.settings({
-        title: "Afiliados PRO",
-        currency: response.currencyCode || "PEN",
-        amount: response.amount,
-        order: response.orderId,
-      });
-      window.Culqi.options({
-        lang: "es",
-        modal: true,
-        paymentMethods: {
-          tarjeta: false,
-          yape: walletMethod === "yape",
-          plin: walletMethod === "plin",
-        },
-      });
+      const CulqiCheckout = window.CulqiCheckout;
+      if (!CulqiCheckout) {
+        toast.error("No se pudo iniciar el checkout");
+        return;
+      }
 
-      window.culqi = function () {
-        if (window.Culqi?.error) {
-          toast.error(window.Culqi.error.user_message || "Pago cancelado");
-        } else {
+      const config = {
+        settings: {
+          title: "Afiliados PRO",
+          currency: response.currencyCode || "PEN",
+          amount: response.amount,
+          order: response.orderId,
+        },
+        client: {
+          email: user?.email || "",
+        },
+        options: {
+          lang: "es",
+          modal: true,
+          paymentMethods: {
+            tarjeta: false,
+            yape: walletMethod === "yape",
+            plin: walletMethod === "plin",
+          },
+        },
+      };
+
+      const checkout = new CulqiCheckout(response.publicKey, config);
+      checkout.culqi = () => {
+        if (checkout.error) {
+          toast.error(checkout.error.user_message || "Pago cancelado");
+        } else if (checkout.order) {
           toast.success("Pago en proceso. En minutos veras tu plan activo.");
         }
       };
 
       setWalletDialogOpen(false);
-      window.Culqi.open();
+      checkout.open();
     } catch (error) {
       toast.error("No se pudo iniciar el pago con billetera");
     } finally {
