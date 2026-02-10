@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Check, Sparkles, Crown, Zap } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -27,6 +27,7 @@ const item = {
 export default function SubscriptionPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [paypalLoading, setPaypalLoading] = useState("");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -48,6 +49,25 @@ export default function SubscriptionPage() {
 
   const plans = subscriptionQuery.data?.plans ?? [];
   const currentPlan = subscriptionQuery.data?.currentPlan ?? "basic";
+
+  const handleSubscribe = async (planId) => {
+    try {
+      setPaypalLoading(planId);
+      const response = await apiFetch("/paypal/create-subscription", {
+        method: "POST",
+        body: JSON.stringify({ planCode: planId }),
+      });
+      if (response?.approvalUrl) {
+        window.location.href = response.approvalUrl;
+      } else {
+        toast.error("No se pudo iniciar el pago");
+      }
+    } catch (error) {
+      toast.error("No se pudo iniciar el pago");
+    } finally {
+      setPaypalLoading("");
+    }
+  };
 
   return (
     <AppLayout>
@@ -162,9 +182,18 @@ export default function SubscriptionPage() {
                       ? "bg-accent text-accent-foreground hover:bg-accent/90 glow-gold"
                       : "bg-secondary text-foreground hover:bg-secondary/80"
                   }`}
-                  disabled={isCurrent}
+                  disabled={isCurrent || paypalLoading === plan.id}
+                  onClick={() => {
+                    if (!isCurrent) {
+                      handleSubscribe(plan.id);
+                    }
+                  }}
                 >
-                  {isCurrent ? "Tu Plan Actual" : `Actualizar a ${plan.name}`}
+                  {isCurrent
+                    ? "Tu Plan Actual"
+                    : paypalLoading === plan.id
+                    ? "Redirigiendo..."
+                    : `Actualizar a ${plan.name}`}
                 </button>
               </div>
             );
