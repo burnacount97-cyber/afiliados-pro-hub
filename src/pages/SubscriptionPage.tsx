@@ -270,7 +270,7 @@ export default function SubscriptionPage() {
             Luego de pagar, escribe al{" "}
             <a
               className="text-primary font-semibold hover:underline"
-              href="https://wa.me/51924464410?text=Hola%20equipo%20de%20Afiliados%20PRO%2C%20ya%20realice%20el%20pago%20por%20Yape%2FPlin.%20Por%20favor%20activar%20mi%20plan."
+              href="https://wa.me/51924464410?text=Hola%20equipo%20de%20Afiliados%20PRO%2C%20ya%20realice%20el%20pago%20por%20Yape%2FPlin%20y%20estoy%20adjuntando%20captura.%20Por%20favor%20activar%20mi%20plan."
               target="_blank"
               rel="noreferrer"
             >
